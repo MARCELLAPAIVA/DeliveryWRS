@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { Plus, Minus } from 'lucide-react';
-import { Product } from '@/lib/types';
+import { Product } from '@/lib/database.types';
 import { useCart } from '@/contexts/CartContext';
 import { formatCurrency } from '@/lib/utils';
 

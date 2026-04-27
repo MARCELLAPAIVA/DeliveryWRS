@@ -21,7 +21,7 @@ export function AdminSidebar() {
   const { signOut } = useAuth();
   const [open, setOpen] = useState(false);
 
-  const NavLinks = () => (
+  const navLinks = (
     <>
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ export function AdminSidebar() {
     <>
       {/* Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-100 min-h-screen">
-        <NavLinks />
+        {navLinks}
       </aside>
 
       {/* Mobile header */}
@@ -83,7 +83,7 @@ export function AdminSidebar() {
       {open && (
         <div className="md:hidden fixed inset-0 z-30 bg-black/40" onClick={() => setOpen(false)}>
           <div className="absolute left-0 top-0 bottom-0 w-72 bg-white flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <NavLinks />
+            {navLinks}
           </div>
         </div>
       )}

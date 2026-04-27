@@ -67,7 +67,7 @@ CREATE TABLE public.delivery_zones (
 CREATE TABLE public.orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'preparing', 'delivering', 'done')),
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'preparing', 'delivering', 'done', 'cancelled')),
   customer_name TEXT NOT NULL DEFAULT '',
   customer_phone TEXT NOT NULL DEFAULT '',
   customer_address TEXT NOT NULL DEFAULT '',

@@ -8,11 +8,13 @@ export interface CartItem {
   quantity: number
 }
 
-interface CartContextType {
+export interface CartContextType {
   items: CartItem[]
   addItem: (product: Product) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
+  increment: (productId: string) => void
+  decrement: (productId: string) => void
   clearCart: () => void
   subtotal: number
   totalItems: number
@@ -53,6 +55,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     )
   }, [])
 
+  const increment = useCallback((productId: string) => {
+    setItems(prev =>
+      prev.map(item =>
+        item.product.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    )
+  }, [])
+
+  const decrement = useCallback((productId: string) => {
+    setItems(prev => {
+      const item = prev.find(i => i.product.id === productId)
+      if (!item) return prev
+      if (item.quantity <= 1) return prev.filter(i => i.product.id !== productId)
+      return prev.map(i =>
+        i.product.id === productId ? { ...i, quantity: i.quantity - 1 } : i
+      )
+    })
+  }, [])
+
   const clearCart = useCallback(() => {
     setItems([])
   }, [])
@@ -61,7 +82,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, subtotal, totalItems }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, increment, decrement, clearCart, subtotal, totalItems }}>
       {children}
     </CartContext.Provider>
   )

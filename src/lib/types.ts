@@ -1,6 +1,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 
-export type OrderStatus = 'new' | 'preparing' | 'delivery' | 'done' | 'cancelled';
+export type OrderStatus = 'new' | 'preparing' | 'delivering' | 'done' | 'cancelled';
 export type PaymentMethod = 'cash' | 'card' | 'pix';
 
 export interface Profile {

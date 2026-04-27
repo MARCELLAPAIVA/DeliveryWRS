@@ -11,14 +11,14 @@ import toast from 'react-hot-toast';
 
 const NEXT_STATUS: Partial<Record<OrderStatus, OrderStatus>> = {
   new: 'preparing',
-  preparing: 'delivery',
-  delivery: 'done',
+  preparing: 'delivering',
+  delivering: 'done',
 };
 
 const STATUS_BTN: Partial<Record<OrderStatus, string>> = {
   new: '👨‍🍳 Iniciar Preparo',
   preparing: '🛵 Saiu para Entrega',
-  delivery: '✅ Marcar como Entregue',
+  delivering: '✅ Marcar como Entregue',
 };
 
 export default function AdminOrderDetailPage() {
@@ -45,7 +45,8 @@ export default function AdminOrderDetailPage() {
     const next = NEXT_STATUS[order.status];
     if (!next) return;
     setUpdating(true);
-    await supabase.from('orders').update({ status: next }).eq('id', id);
+    const { error } = await supabase.from('orders').update({ status: next }).eq('id', id);
+    if (error) { toast.error('Erro ao atualizar status.'); setUpdating(false); return; }
     toast.success(`Status atualizado!`);
     load();
     setUpdating(false);
@@ -53,7 +54,8 @@ export default function AdminOrderDetailPage() {
 
   async function cancelOrder() {
     if (!confirm('Cancelar este pedido?')) return;
-    await supabase.from('orders').update({ status: 'cancelled' }).eq('id', id);
+    const { error } = await supabase.from('orders').update({ status: 'cancelled' as OrderStatus }).eq('id', id);
+    if (error) { toast.error('Erro ao cancelar pedido.'); return; }
     toast.success('Pedido cancelado.');
     router.push('/admin/orders');
   }
@@ -96,7 +98,7 @@ export default function AdminOrderDetailPage() {
           <span className={`inline-flex items-center text-sm font-semibold px-3 py-1.5 rounded-full ${
             order.status === 'new' ? 'bg-blue-100 text-blue-700' :
             order.status === 'preparing' ? 'bg-yellow-100 text-yellow-700' :
-            order.status === 'delivery' ? 'bg-orange-100 text-orange-700' :
+            order.status === 'delivering' ? 'bg-orange-100 text-orange-700' :
             order.status === 'done' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
           }`}>
             {ORDER_STATUS_LABELS[order.status]}

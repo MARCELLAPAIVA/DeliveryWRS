@@ -61,7 +61,7 @@ export function Navbar() {
                   <>
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-xs text-gray-400">Olá,</p>
-                      <p className="text-sm font-semibold text-gray-800 truncate">{profile?.name ?? user.email}</p>
+                      <p className="text-sm font-semibold text-gray-800 truncate">{profile?.full_name ?? user.email}</p>
                     </div>
                     <Link href="/orders" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                       <Package size={16} /> Meus Pedidos

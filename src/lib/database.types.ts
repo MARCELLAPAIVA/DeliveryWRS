@@ -110,7 +110,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          status: 'new' | 'preparing' | 'delivering' | 'done'
+          status: 'new' | 'preparing' | 'delivering' | 'done' | 'cancelled'
           customer_name: string
           customer_phone: string
           customer_address: string
