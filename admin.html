@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Whiskeria Royal Salute</title>
+<style id="app-styles">
+/* ============================================================
+   WHISKERIA ROYAL SALUTE — Delivery
+   Estilo "Anota Aí": header vermelho, abas de categoria,
+   cards horizontais e bottom-nav fixa.
+   ============================================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root{
+  --brand:        #E11D2E;     /* vermelho de destaque (preços, botões, abas ativas) */
+  --brand-dark:   #B7141F;
+  --brand-soft:   #FDECEE;
+  --header:       #0A0A0B;     /* PRETO da barra superior */
+  --header-2:     #1A1A1D;
+  --ink:          #0F1115;
+  --ink-2:        #2A2F3A;
+  --muted:        #6B7280;
+  --line:         #ECECEE;
+  --bg:           #FFFFFF;
+  --bg-soft:      #F7F7F8;
+  --shadow:       0 1px 2px rgba(15,17,21,.04), 0 8px 24px rgba(15,17,21,.06);
+  --radius:       14px;
+  --radius-sm:    10px;
+  --nav-h:        64px;
+}
+
+html, body { background: var(--bg); color: var(--ink-2); }
+body{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+}
+img { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+a { color: inherit; text-decoration: none; }
+input, select, textarea { font-family: inherit; font-size: 15px; }
+
+/* ============================ HEADER (preto) ============================ */
+.header{
+  position: sticky; top: 0; z-index: 40;
+  background: var(--header);
+  color: #fff;
+  border-bottom: 1px solid #000;
+}
+.header-inner{
+  max-width: 720px; margin: 0 auto;
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+}
+.logo{ display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.logo-mark{
+  width: 44px; height: 44px; flex: 0 0 44px;
+  border-radius: 50%;
+  background: #fff; color: var(--header);
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 14px; letter-spacing: .5px;
+  border: 2px solid var(--brand);
+  overflow: hidden;
+}
+.logo span:last-child{
+  font-weight: 800; font-size: 18px; letter-spacing: .3px;
+  text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.header-actions{ display: flex; align-items: center; gap: 8px; }
+.icon-btn{
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  display: grid; place-items: center;
+  position: relative;
+  transition: background .15s;
+}
+.icon-btn:hover{ background: rgba(255,255,255,.28); }
+.cart-badge{
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px; padding: 0 5px;
+  background: var(--brand); color: #fff;
+  border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+  display: grid; place-items: center;
+  border: 2px solid var(--header);
+}
+
+/* ============================ STATUS BAR (offline / mínimo) ============================ */
+.status-bar{
+  max-width: 720px; margin: 0 auto;
+  padding: 10px 16px 6px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--ink);
+  font-weight: 500;
+}
+.status-bar .dot-sep{ color: #C9CCD2; }
+.status-bar .profile-link{
+  margin-left: auto;
+  color: var(--brand); font-weight: 700;
+}
+.offline-pill{
+  max-width: 720px; margin: 0 auto;
+  background: var(--brand-soft); color: var(--brand);
+  text-align: center; font-weight: 600; font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  margin-top: 4px; margin-left: 16px; margin-right: 16px;
+}
+
+/* ============================ TABS DE CATEGORIA ============================ */
+.cat-tabs-wrap{
+  position: sticky; top: 72px; z-index: 30;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  margin-top: 14px;
+}
+.cat-tabs{
+  max-width: 720px; margin: 0 auto;
+  display: flex; gap: 26px;
+  overflow-x: auto;
+  padding: 14px 16px 0;
+  scrollbar-width: none;
+}
+.cat-tabs::-webkit-scrollbar{ display:none; }
+.cat-tab{
+  flex: 0 0 auto;
+  font-size: 14px; font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 12px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  letter-spacing: .3px;
+  transition: color .15s;
+}
+.cat-tab:hover{ color: var(--ink); }
+.cat-tab.active{
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+}
+
+/* ============================ BUSCA ============================ */
+.search-wrap{
+  max-width: 720px; margin: 14px auto 0;
+  padding: 0 16px;
+}
+.search-wrap input{
+  width: 100%;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color .15s, background .15s;
+}
+.search-wrap input:focus{
+  background: #fff;
+  border-color: var(--brand);
+}
+
+/* ============================ CONTAINER ============================ */
+.container{
+  max-width: 720px; margin: 0 auto;
+  padding: 18px 16px 24px;
+}
+
+/* ============================ SEÇÃO DE CATEGORIA ============================ */
+.section{ margin-bottom: 22px; }
+.section-title{
+  font-size: 18px; font-weight: 800;
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: .2px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.section-sub{
+  font-size: 14px; font-weight: 700;
+  color: var(--ink); margin: 6px 0 10px;
+}
+
+/* ============================ DESTAQUE (card grande) ============================ */
+.featured-card{
+  display: block;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 18px;
+  cursor: pointer;
+}
+.featured-card .ph{
+  width: 200px; height: 160px;
+  border-radius: var(--radius); overflow: hidden;
+  background: var(--bg-soft);
+}
+.featured-card .ph img{ width:100%; height:100%; object-fit: cover; }
+.featured-card .ph.placeholder{
+  display: grid; place-items: center;
+  font-size: 48px;
+}
+.featured-card .name{
+  margin-top: 10px;
+  font-weight: 800; font-size: 15px;
+  color: var(--ink);
+  text-transform: uppercase;
+  max-width: 200px;
+  line-height: 1.25;
+}
+.featured-card .price{
+  margin-top: 4px;
+  color: var(--brand);
+  font-size: 18px; font-weight: 800;
+}
+
+/* ============================ LISTA DE PRODUTOS (cards horizontais) ============================ */
+.prod-list{ display: flex; flex-direction: column; }
+.prod-row{
+  display: flex; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background .15s;
+}
+.prod-row:last-child{ border-bottom: 0; }
+.prod-row:hover{ background: #FAFAFB; }
+.prod-row .info{ flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.prod-row .name{
+  font-weight: 700; font-size: 15px;
+  color: var(--ink);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: .2px;
+}
+.prod-row .desc{
+  color: var(--muted);
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.prod-row .price{
+  margin-top: auto;
+  color: var(--ink);
+  font-weight: 800; font-size: 16px;
+}
+.prod-row .thumb{
+  width: 110px; height: 110px; flex: 0 0 110px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  overflow: hidden;
+  display: grid; place-items: center;
+  font-size: 36px;
+  position: relative;
+}
+.prod-row .thumb img{ width: 100%; height: 100%; object-fit: cover; }
+.prod-row .add-btn{
+  position: absolute; bottom: 6px; right: 6px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--brand); color: #fff;
+  display: grid; place-items: center;
+  font-size: 20px; font-weight: 700; line-height: 1;
+  box-shadow: 0 4px 10px rgba(225,29,46,.35);
+  transition: transform .12s;
+}
+.prod-row .add-btn:hover{ transform: scale(1.08); }
+
+/* ============================ BOTTOM NAV ============================ */
+.bottom-nav{
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  height: var(--nav-h);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.bottom-nav-inner{
+  max-width: 720px; margin: 0 auto;
+  height: 100%;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+}
+.nav-item{
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px; font-weight: 600;
+  position: relative;
+  transition: color .15s;
+}
+.nav-item svg{ width: 22px; height: 22px; }
+.nav-item.active{ color: var(--brand); }
+.nav-item.active::before{
+  content:""; position: absolute; top: 0; left: 25%; right: 25%;
+  height: 3px; border-radius: 0 0 3px 3px;
+  background: var(--brand);
+}
+.nav-item .badge{
+  position: absolute; top: 8px; right: calc(50% - 22px);
+  min-width: 16px; height: 16px; padding: 0 4px;
+  background: var(--brand); color: #fff;
+  border-radius: 999px;
+  font-size: 10px; font-weight: 700;
+  display: grid; place-items: center;
+}
+
+/* ============================ DRAWER (carrinho) ============================ */
+.drawer-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 60;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.drawer-overlay.open{ opacity: 1; pointer-events: auto; }
+.drawer{
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(420px, 100%);
+  background: #fff;
+  z-index: 70;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  box-shadow: -10px 0 30px rgba(0,0,0,.12);
+}
+.drawer.open{ transform: translateX(0); }
+.drawer-head{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px; border-bottom: 1px solid var(--line);
+}
+.drawer-head h2{ font-size: 18px; color: var(--ink); }
+.drawer-head .icon-btn{ background: var(--bg-soft); color: var(--ink); }
+.drawer-body{ flex: 1; overflow-y: auto; padding: 12px 16px; }
+.drawer-foot{ border-top: 1px solid var(--line); padding: 16px; background: #fff; }
+.cart-item{
+  display: flex; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.cart-item .ci-img{
+  width: 56px; height: 56px; flex: 0 0 56px;
+  border-radius: 8px; background: var(--bg-soft);
+  display: grid; place-items: center; overflow: hidden;
+}
+.cart-item .ci-img img{ width:100%; height:100%; object-fit: cover; }
+.cart-item .ci-info{ flex: 1; min-width: 0; }
+.cart-item .ci-name{ font-weight: 600; color: var(--ink); font-size: 14px; }
+.cart-item .ci-price{ color: var(--muted); font-size: 13px; margin-top: 2px; }
+.cart-item .ci-ctrl{
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 6px;
+}
+.cart-item .ci-ctrl button{
+  width: 26px; height: 26px; border-radius: 6px;
+  background: var(--bg-soft); color: var(--ink);
+  font-weight: 700; font-size: 14px;
+}
+.summary-row{
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; font-size: 14px; color: var(--ink-2);
+}
+.summary-row.total{
+  font-size: 18px; font-weight: 800; color: var(--ink);
+  margin: 10px 0 14px;
+}
+
+/* ============================ BOTÕES ============================ */
+.btn{
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 700; font-size: 15px;
+  transition: transform .08s, background .15s, box-shadow .15s;
+}
+.btn:active{ transform: translateY(1px); }
+.btn-primary{
+  background: var(--brand); color: #fff;
+  box-shadow: 0 6px 16px rgba(225,29,46,.28);
+}
+.btn-primary:hover{ background: var(--brand-dark); }
+.btn-secondary{
+  background: var(--bg-soft); color: var(--ink);
+}
+.btn-secondary:hover{ background: #EDEDEF; }
+.btn-block{ width: 100%; }
+
+/* ============================ MODAL AUTH ============================ */
+.modal-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 80;
+  display: none; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.open{ display: flex; }
+.modal{
+  width: 100%; max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.modal h2{ color: var(--ink); margin-bottom: 4px; font-size: 20px; }
+.modal .sub{ color: var(--muted); margin-bottom: 16px; font-size: 14px; }
+.field{ margin-bottom: 12px; }
+.field label{ display:block; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; font-weight: 600; }
+.field input{
+  width: 100%; padding: 11px 12px;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; outline: none;
+  transition: border-color .15s;
+}
+.field input:focus{ border-color: var(--brand); }
+.tab-switch{
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: var(--bg-soft); border-radius: 10px;
+  padding: 4px; margin-bottom: 16px;
+}
+.tab-switch button{
+  padding: 9px; border-radius: 8px;
+  font-weight: 600; color: var(--muted); font-size: 14px;
+}
+.tab-switch button.active{ background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.hidden{ display: none; }
+
+/* ============================ ESTADOS ============================ */
+.spinner{
+  width: 36px; height: 36px;
+  border: 3px solid var(--line);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  margin: 40px auto;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state{ text-align: center; padding: 40px 16px; color: var(--muted); }
+.empty-state .emoji{ font-size: 42px; margin-bottom: 8px; }
+
+/* ============================ TOAST ============================ */
+.toast{
+  position: fixed; bottom: calc(var(--nav-h) + 16px); left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #111; color: #fff;
+  padding: 12px 18px; border-radius: 999px;
+  font-size: 14px; font-weight: 600;
+  opacity: 0; pointer-events: none;
+  transition: all .25s; z-index: 100;
+}
+.toast.show{ opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ============================ RESPONSIVO ============================ */
+@media (min-width: 720px){
+  .prod-row .thumb{ width: 120px; height: 120px; flex-basis: 120px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN ADMIN -->
+<div id="login-screen" style="min-height:100vh;display:grid;place-items:center;padding:20px;background:var(--bg-soft)">
+  <div class="modal" style="max-width:380px">
+    <h2>🔐 Painel Admin</h2>
+    <p class="sub">Acesso restrito</p>
+    <div id="login-alert" class="alert alert-error hidden"></div>
+    <form onsubmit="adminLogin(event)">
+      <div class="field"><label>Email</label><input id="al-email" type="email" required></div>
+      <div class="field"><label>Senha</label><input id="al-pwd" type="password" required></div>
+      <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+    </form>
+    <p style="margin-top:18px;font-size:12px;color:var(--muted);text-align:center">
+      Para liberar acesso admin, veja o arquivo <code>supabase/04_storage_e_admin.sql</code>
+    </p>
+    <a href="index.html" style="display:block;text-align:center;margin-top:10px;font-size:13px;color:var(--gold-dark)">← Voltar para a loja</a>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app" class="admin-layout hidden">
+  <aside class="admin-sidebar">
+    <div class="logo"><span class="logo-mark">W</span> <span>Royal Admin</span></div>
+    <nav class="admin-nav">
+      <a href="#" data-view="dashboard">📊 Dashboard</a>
+      <a href="#" data-view="pedidos">📋 Pedidos</a>
+      <a href="#" data-view="produtos">📦 Produtos</a>
+      <a href="#" data-view="categorias">📁 Categorias</a>
+      <a href="#" data-view="zonas">🚚 Bairros / Frete</a>
+      <a href="#" data-view="config">⚙️ Configurações</a>
+      <a href="#" id="logout-btn" style="margin-top:30px;color:#ef4444">🚪 Sair</a>
+      <a href="index.html" style="color:#94a3b8">↗ Ver a loja</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    <button class="icon-btn menu-toggle" id="menu-toggle" style="margin-bottom:10px">☰</button>
+    <div id="admin-content"><div class="spinner"></div></div>
+  </main>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>
