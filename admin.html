@@ -459,6 +459,10 @@ input, select, textarea { font-family: inherit; font-size: 15px; }
   .prod-row .thumb{ width: 120px; height: 120px; flex-basis: 120px; }
 }
 
+
+.alert{padding:10px 12px;border-radius:10px;margin-bottom:12px;font-size:14px;font-weight:600}
+.alert-error{background:#FEE2E2;color:#991B1B;border:1px solid #FECACA}
+
 </style>
 </head>
 <body>
@@ -509,6 +513,153 @@ input, select, textarea { font-family: inherit; font-size: 15px; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/supabase-client.js"></script>
-<script src="assets/js/admin.js"></script>
+<script src="assets/js/admin.js?v=admin-validacao-1"></script>
+
+<script>
+// ============================================================
+// VALIDAÇÃO REAL DE ADMIN — SUPABASE AUTH + TABELA user_roles
+// Este bloco protege o admin.html: só libera quem tiver role = admin.
+// ============================================================
+(function () {
+  const ADMIN_EMAIL_HINT = 'adminwhiskeria@gmail.com';
+
+  function showLoginError(message) {
+    const el = document.getElementById('login-alert');
+    if (el) {
+      el.textContent = message;
+      el.classList.remove('hidden');
+    } else {
+      alert(message);
+    }
+  }
+
+  function clearLoginError() {
+    const el = document.getElementById('login-alert');
+    if (el) {
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+  }
+
+  function showLoginScreen() {
+    document.getElementById('login-screen')?.classList.remove('hidden');
+    document.getElementById('admin-app')?.classList.add('hidden');
+  }
+
+  function liberarAdmin() {
+    clearLoginError();
+    document.getElementById('login-screen')?.classList.add('hidden');
+    document.getElementById('admin-app')?.classList.remove('hidden');
+
+    // Se o admin.js original tiver função de inicialização, tenta chamar sem quebrar a página.
+    try {
+      if (typeof window.loadDashboard === 'function') window.loadDashboard();
+      else if (typeof window.renderDashboard === 'function') window.renderDashboard();
+      else if (typeof window.loadAdmin === 'function') window.loadAdmin();
+    } catch (err) {
+      console.warn('Admin liberado, mas houve erro ao iniciar painel:', err);
+    }
+  }
+
+  async function usuarioTemRoleAdmin(userId) {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Erro ao consultar user_roles:', error);
+      throw error;
+    }
+
+    return !!data;
+  }
+
+  window.adminLogin = async function adminLogin(event) {
+    event.preventDefault();
+    clearLoginError();
+
+    const email = document.getElementById('al-email')?.value.trim();
+    const password = document.getElementById('al-pwd')?.value;
+
+    if (!email || !password) {
+      showLoginError('Informe email e senha.');
+      return;
+    }
+
+    const btn = event.target?.querySelector('button[type="submit"]');
+    const oldText = btn ? btn.textContent : '';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Validando...';
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error || !data?.user) {
+        showLoginError('Email ou senha inválidos.');
+        return;
+      }
+
+      const isAdmin = await usuarioTemRoleAdmin(data.user.id);
+
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        showLoginError('Acesso negado. Este usuário não está cadastrado como admin.');
+        return;
+      }
+
+      liberarAdmin();
+    } catch (err) {
+      console.error(err);
+      showLoginError('Não foi possível validar o admin. Confira a tabela user_roles e as políticas RLS.');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldText || 'Entrar';
+      }
+    }
+  };
+
+  async function checkAdminSession() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.user) {
+        showLoginScreen();
+        return;
+      }
+
+      const isAdmin = await usuarioTemRoleAdmin(session.user.id);
+
+      if (isAdmin) {
+        liberarAdmin();
+      } else {
+        await supabase.auth.signOut();
+        showLoginScreen();
+      }
+    } catch (err) {
+      console.error(err);
+      showLoginScreen();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const emailInput = document.getElementById('al-email');
+    if (emailInput && !emailInput.value) emailInput.value = ADMIN_EMAIL_HINT;
+
+    document.getElementById('logout-btn')?.addEventListener('click', async (event) => {
+      event.preventDefault();
+      await supabase.auth.signOut();
+      location.reload();
+    });
+
+    checkAdminSession();
+  });
+})();
+</script>
 </body>
 </html>
