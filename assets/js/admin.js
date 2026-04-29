@@ -81,19 +81,22 @@ async function adminLogin(e) {
   }
 
   await guard();
-}
-
 async function validarAdmin(userId) {
-  const { data: roles, error } = await sb
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId);
+  const { data, error } = await sb.rpc('has_role', {
+    _user_id: userId,
+    _role: 'admin'
+  });
 
   if (error) {
-    console.error('Erro ao validar admin:', error);
-    showLogin('Não foi possível validar o admin. Confira a tabela user_roles e as políticas RLS.');
+    console.error('Erro RPC has_role:', error);
+    showLogin('Não foi possível validar o admin. Erro na função has_role.');
     return false;
   }
+
+  console.log('VALIDAÇÃO ADMIN:', data);
+
+  return data === true;
+}
 
   console.log('ROLES DO USUÁRIO:', roles);
 
